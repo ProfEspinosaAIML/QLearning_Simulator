@@ -291,6 +291,20 @@ class GridWorld(DiscreteEnv):
 
 @dataclass
 class EpsilonSchedule:
+    """Exponential decay schedule for epsilon (exploration rate)."""
+
+    start: float = 1.0   # initial epsilon (high exploration)
+    end: float = 0.05    # minimum epsilon (some exploration remains)
+    decay: float = 0.999 # multiplicative decay per episode
+
+    def value(self, episode_idx: int) -> float:
+        eps = self.end + (self.start - self.end) * (self.decay ** episode_idx)
+        return float(max(self.end, min(self.start, eps)))
+
+
+
+@dataclass
+class QLearningConfig:
     # Discount factor (γ)
     # Controls how much the agent values future rewards.
     # γ → 1.0  : long-term planning (future rewards matter a lot)
@@ -299,25 +313,13 @@ class EpsilonSchedule:
 
     # Learning rate (α)
     # Controls how much new information overrides old Q-values.
-    # α → 1.0  : very aggressive updates (fast but unstable)
-    # α → 0.0  : very slow learning (stable but slow convergence)
+    # α → 1.0  : aggressive updates (fast but can be unstable)
+    # α → 0.0  : very slow learning
     alpha: float = 0.1
 
     # Exploration rate (ε)
     # Probability of choosing a random action instead of the greedy one.
-    # Higher ε → more exploration
-    # Lower ε  → more exploitation
-    epsilon: float = 0.1
-
-    def value(self, episode_idx: int) -> float:
-        eps = self.end + (self.start - self.end) * (self.decay ** episode_idx)
-        return float(max(self.end, min(self.start, eps)))
-
-
-@dataclass
-class QLearningConfig:
-    gamma: float = 0.99
-    alpha: float = 0.1
+    # Higher ε → more exploration; lower ε → more exploitation
     epsilon: float = 0.1
     epsilon_schedule: Optional[EpsilonSchedule] = None
     max_steps_per_episode: int = 10_000
