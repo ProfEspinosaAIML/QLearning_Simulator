@@ -1,4 +1,4 @@
-# 🎯 Q-Learning Simulator (Teaching Edition)
+# 🎯 Q-Learning Simulator
 
 Welcome to the **Q-Learning Simulator**.
 
